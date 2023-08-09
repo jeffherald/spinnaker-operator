@@ -2,9 +2,12 @@ package kubernetes
 
 import (
 	"errors"
+	"os"
+
+	"strings"
+
 	"github.com/armory/spinnaker-operator/pkg/accounts/account"
 	"github.com/armory/spinnaker-operator/pkg/apis/spinnaker/interfaces"
-	"strings"
 )
 
 // Kubernetes accounts have a deeper integration than other accounts.
@@ -34,7 +37,24 @@ func (k *AccountType) GetConfigAccountsKey() string {
 }
 
 func (k *AccountType) GetServices() []string {
-	return []string{"clouddriver"}
+	// TODO(maybe): this was formerly hardcoded and should probably be derived from the spinnaker service
+	// configuration, but we will punt for now and use an environment variable due to the number of changes
+	// that would be needed to support that.
+	val := os.Getenv("CLOUDDRIVER_DEPLOYMENTS")
+	if val == "" {
+		return []string{"clouddriver"}
+	}
+	svcMap := map[string]bool{}
+	for _, s := range strings.Split(val, ",") {
+		svcMap[strings.TrimSpace(s)] = true
+	}
+	svcs := make([]string, len(svcMap))
+	idx := 0
+	for s := range svcMap {
+		svcs[idx] = s
+		idx += 1
+	}
+	return svcs
 }
 
 func (k *AccountType) GetPrimaryAccountsKey() string {

@@ -49,7 +49,7 @@ func (s *SpinnakerServiceList) GetItems() []interfaces.SpinnakerService {
 	} else {
 		var result []interfaces.SpinnakerService
 		for _, i := range s.Items {
-			result = append(result, &i)
+			result = append(result, i.DeepCopy())
 		}
 		return result
 	}

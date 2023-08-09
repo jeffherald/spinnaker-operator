@@ -3,6 +3,7 @@ package spinnakerservice
 import (
 	"context"
 	"fmt"
+
 	"github.com/armory/spinnaker-operator/pkg/apis/spinnaker/interfaces"
 	"github.com/armory/spinnaker-operator/pkg/deploy"
 	"github.com/armory/spinnaker-operator/pkg/deploy/spindeploy"
@@ -20,9 +21,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
@@ -110,6 +111,8 @@ func (r *ReconcileSpinnakerService) Reconcile(ctx context.Context, request recon
 
 	// Fetch the SpinnakerService instance
 	instance := TypesFactory.NewService()
+
+	ctx = secrets.NewContext(ctx, r.restConfig, request.Namespace)
 	defer secrets.Cleanup(ctx)
 
 	err := r.client.Get(ctx, request.NamespacedName, instance)
